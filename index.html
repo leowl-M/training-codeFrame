@@ -76,14 +76,27 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);display:flex
 
 /* CANVAS AREA */
 .stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;padding:32px;background:var(--bg);position:relative}
-.stage::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.045) 1px,transparent 1px);background-size:22px 22px;pointer-events:none}
-.stage::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 30%,rgba(255,62,186,.05) 0%,transparent 55%),radial-gradient(ellipse at 70% 70%,rgba(255,62,186,.03) 0%,transparent 55%);pointer-events:none}
 
 /* THE WINDOW EXPORT ZONE */
 #export-zone {
   display: inline-flex;
   flex-direction: column;
   box-sizing: content-box;
+  position: relative;
+  background: var(--bg); /* Assicura lo sfondo scuro nel padding */
+}
+
+/* Griglia a puntini e alone spostati in #export-zone per essere fotografati */
+#export-zone::before {
+  content:''; position:absolute; inset:0; 
+  background-image:radial-gradient(circle,rgba(255,255,255,.045) 1px,transparent 1px); 
+  background-size:22px 22px; pointer-events:none;
+}
+#export-zone::after {
+  content:''; position:absolute; inset:0; 
+  background:radial-gradient(ellipse at 30% 30%,rgba(255,62,186,.05) 0%,transparent 55%),
+             radial-gradient(ellipse at 70% 70%,rgba(255,62,186,.03) 0%,transparent 55%); 
+  pointer-events:none;
 }
 
 /* THE WINDOW */
@@ -108,7 +121,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);display:flex
 .wbody{display:flex;overflow:hidden}
 
 .lnums{
-  /* Padding corretto: 14px sopra/sotto, 12px a destra (prima era 0), 14px a sinistra */
   padding:14px 12px 14px 14px;
   font-family:var(--mono);
   font-size:13px;
@@ -121,7 +133,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);display:flex
 
 #code{
   flex:1;
-  /* Padding corretto: bilanciato con lnums per avere 12px da ambo i lati della linea */
   padding:14px 20px 14px 12px;
   font-family:var(--mono);
   font-size:13px;
@@ -356,14 +367,11 @@ function togTb() {
   document.getElementById('wbar').style.display = tbOn ? '' : 'none';
 }
 
+// Funzione exportPNG aggiornata
 function exportPNG() {
   const exportZone = document.getElementById('export-zone');
   const scale = parseInt(document.getElementById('scl').value);
   const fname = (document.getElementById('fname').value || 'code').replace(/\..*$/, '');
-
-  const prevOverflow = code.style.overflow;
-  code.style.overflow = 'visible';
-  sync();
 
   html2canvas(exportZone, {
     scale,
@@ -371,12 +379,23 @@ function exportPNG() {
     backgroundColor: null,
     logging: false,
     onclone(doc) {
-      const c = doc.getElementById('code');
-      c.style.height = 'auto';
-      c.style.overflow = 'visible';
+      const clonedCode = doc.getElementById('code');
+      const origCode = document.getElementById('code');
+      
+      const div = doc.createElement('div');
+      div.id = 'code';
+      
+      div.textContent = origCode.value; 
+      
+      div.className = clonedCode.className;
+      div.style.cssText = origCode.style.cssText;
+      div.style.fontSize = origCode.style.fontSize || '13px';
+      div.style.lineHeight = origCode.style.lineHeight || '1.65';
+      div.style.height = 'auto'; 
+      
+      clonedCode.parentNode.replaceChild(div, clonedCode);
     }
   }).then(canvas => {
-    code.style.overflow = prevOverflow;
     const a = document.createElement('a');
     a.download = fname + '.png';
     a.href = canvas.toDataURL('image/png');
