@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>codeframe</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root {
+  --pink: #ff3eba;
+  --pink-dim: rgba(255,62,186,0.12);
+  --pink-border: rgba(255,62,186,0.22);
+  --bg:   #09090e;
+  --bg2:  #0e0e16;
+  --bg3:  #141420;
+  --bg4:  #1a1a28;
+  --border: rgba(255,255,255,0.055);
+  --text: #dddde8;
+  --dim:  rgba(221,221,232,0.45);
+  --hint: rgba(221,221,232,0.25);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+/* TOPBAR */
+.topbar{height:50px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:10px;flex-shrink:0}
+.logo{font-family:var(--mono);font-size:13px;color:var(--pink);display:flex;align-items:center;gap:7px;font-weight:500;letter-spacing:-.02em}
+.logo-dot{width:5px;height:5px;background:var(--pink);border-radius:50%;animation:blink 2.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.topbar-hint{margin-left:auto;font-size:10px;color:var(--hint);font-family:var(--mono);letter-spacing:.06em}
+
+/* LAYOUT */
+.main{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sb{width:232px;min-width:232px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;padding:16px 0 20px}
+.sb::-webkit-scrollbar{width:4px}.sb::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.sec{padding:0 16px 16px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.sec:last-of-type{border-bottom:none;margin-bottom:0}
+.sec-title{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--pink);text-transform:uppercase;margin-bottom:11px;display:flex;align-items:center;gap:5px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--pink-border)}
+.field{margin-bottom:9px}
+.field > span{display:block;font-size:10.5px;color:var(--dim);margin-bottom:4px;font-family:var(--mono)}
+.field input[type=text],.field select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:11.5px;padding:6px 9px;font-family:var(--mono);outline:none;appearance:none;transition:border-color .15s}
+.field input[type=text]:focus,.field select:focus{border-color:var(--pink-border)}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='5'%3E%3Cpath d='M1 1l3.5 3L8 1' stroke='%23ff3eba' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:26px}
+
+/* theme swatches */
+.swatches{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.swatch{height:34px;border-radius:5px;cursor:pointer;border:1.5px solid transparent;display:flex;align-items:flex-end;padding:3px 5px;font-size:8.5px;font-family:var(--mono);transition:border-color .12s,transform .1s}
+.swatch:hover{transform:scale(1.05)}
+.swatch.on{border-color:var(--pink)}
+
+/* slider */
+.srow{display:flex;align-items:center;gap:7px}
+.srow input[type=range]{flex:1;appearance:none;height:2px;background:var(--bg4);border-radius:1px;outline:none;cursor:pointer}
+.srow input[type=range]::-webkit-slider-thumb{appearance:none;width:13px;height:13px;border-radius:50%;background:var(--pink);border:2px solid var(--bg);cursor:pointer}
+.sval{font-family:var(--mono);font-size:10px;color:var(--pink);min-width:24px;text-align:right}
+
+/* toggle */
+.trow{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.trow span{font-size:10.5px;color:var(--dim);font-family:var(--mono)}
+.tog{width:30px;height:17px;background:var(--bg4);border-radius:9px;border:1px solid var(--border);cursor:pointer;position:relative;transition:background .18s;flex-shrink:0}
+.tog.on{background:var(--pink-dim);border-color:var(--pink-border)}
+.tog::after{content:'';width:11px;height:11px;background:var(--hint);border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .18s,background .18s}
+.tog.on::after{transform:translateX(13px);background:var(--pink)}
+
+/* export btn */
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;width:calc(100% - 32px);margin:4px 16px 0;padding:10px;background:var(--pink);border:none;border-radius:7px;color:#09090e;font-size:12.5px;font-weight:500;font-family:var(--sans);cursor:pointer;transition:opacity .15s,transform .1s;letter-spacing:-.01em;flex-shrink:0}
+.btn:hover{opacity:.85}.btn:active{transform:scale(.98)}
+.btn svg{width:14px;height:14px;flex-shrink:0}
+
+/* CANVAS AREA */
+.stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;padding:32px;background:var(--bg);position:relative}
+.stage::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.045) 1px,transparent 1px);background-size:22px 22px;pointer-events:none}
+.stage::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 30%,rgba(255,62,186,.05) 0%,transparent 55%),radial-gradient(ellipse at 70% 70%,rgba(255,62,186,.03) 0%,transparent 55%);pointer-events:none}
+
+/* THE WINDOW EXPORT ZONE */
+#export-zone {
+  display: inline-flex;
+  flex-direction: column;
+  box-sizing: content-box;
+}
+
+/* THE WINDOW */
+#win{
+  position:relative;
+  z-index:1;
+  border-radius:10px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.07);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  min-width:420px;
+  transition:width .1s;
+}
+
+.wbar{height:38px;display:flex;align-items:center;padding:0 14px;gap:8px;flex-shrink:0}
+.wd{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.wd-r{background:#ff5f57}.wd-y{background:#febc2e}.wd-g{background:#28c840}
+.wname{flex:1;text-align:center;font-family:var(--mono);font-size:11px}
+.wspc{width:49px; flex-shrink:0;}
+
+/* CODE BODY */
+.wbody{display:flex;overflow:hidden}
+
+.lnums{
+  /* Padding corretto: 14px sopra/sotto, 12px a destra (prima era 0), 14px a sinistra */
+  padding:14px 12px 14px 14px;
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.65;
+  text-align:right;
+  user-select:none;
+  flex-shrink:0;
+  white-space:pre;
+}
+
+#code{
+  flex:1;
+  /* Padding corretto: bilanciato con lnums per avere 12px da ambo i lati della linea */
+  padding:14px 20px 14px 12px;
+  font-family:var(--mono);
+  font-size:13px;
+  line-height:1.65;
+  border:none;
+  outline:none;
+  resize:none;
+  background:transparent;
+  tab-size:2;
+  white-space:pre;
+  overflow:auto;
+  min-height:120px;
+  caret-color:var(--pink);
+  scrollbar-width:none;
+}
+#code::-webkit-scrollbar{display:none}
+#code::placeholder{opacity:.25}
+
+/* THEMES */
+.th-dark .wbody{background:#1e1e2e}
+.th-dark .wbar{background:#252540;border-bottom:1px solid rgba(255,255,255,.06)}
+.th-dark .wname{color:#44445e}
+.th-dark .lnums{color:#2e2e4a;border-right:1px solid rgba(255,255,255,.05)}
+.th-dark #code{color:#cdd6f4}
+
+.th-black .wbody{background:#0d0d0d}
+.th-black .wbar{background:#111;border-bottom:1px solid rgba(255,255,255,.04)}
+.th-black .wname{color:#333}
+.th-black .lnums{color:#222;border-right:1px solid rgba(255,255,255,.04)}
+.th-black #code{color:#e0e0e0}
+
+.th-charcoal .wbody{background:#181821}
+.th-charcoal .wbar{background:#1d1d28;border-bottom:1px solid rgba(255,255,255,.05)}
+.th-charcoal .wname{color:#3a3a52}
+.th-charcoal .lnums{color:#26263a;border-right:1px solid rgba(255,255,255,.05)}
+.th-charcoal #code{color:#d0d0e8}
+
+.th-dracula .wbody{background:#282a36}
+.th-dracula .wbar{background:#21222c;border-bottom:1px solid rgba(255,255,255,.06)}
+.th-dracula .wname{color:#6272a4}
+.th-dracula .lnums{color:#383a4a;border-right:1px solid rgba(255,255,255,.06)}
+.th-dracula #code{color:#f8f8f2}
+
+.th-nord .wbody{background:#2e3440}
+.th-nord .wbar{background:#272c37;border-bottom:1px solid rgba(255,255,255,.06)}
+.th-nord .wname{color:#4c566a}
+.th-nord .lnums{color:#3b4252;border-right:1px solid rgba(255,255,255,.06)}
+.th-nord #code{color:#eceff4}
+
+.th-light .wbody{background:#f9f9fd}
+.th-light .wbar{background:#f0f0f6;border-bottom:1px solid rgba(0,0,0,.07)}
+.th-light .wname{color:#aaa}
+.th-light .lnums{color:#d0d0d8;border-right:1px solid rgba(0,0,0,.07)}
+.th-light #code{color:#1e1e2e}
+.th-light{border-color:rgba(0,0,0,.1)!important; box-shadow: 0 20px 60px rgba(0,0,0,0.15)!important;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><div class="logo-dot"></div>codeframe</div>
+  <span class="topbar-hint">incolla · personalizza · esporta</span>
+</div>
+
+<div class="main">
+<aside class="sb">
+
+  <div class="sec">
+    <div class="sec-title">file</div>
+    <div class="field"><span>nome file</span>
+      <input type="text" id="fname" value="sketch.js" oninput="setFname(this.value)">
+    </div>
+    <div class="field"><span>font size</span>
+      <select onchange="setFs(this.value)">
+        <option value="11">11px</option><option value="12">12px</option>
+        <option value="13" selected>13px</option><option value="14">14px</option>
+        <option value="15">15px</option><option value="16">16px</option><option value="18">18px</option>
+      </select>
+    </div>
+    <div class="field"><span>line height</span>
+      <select onchange="setLh(this.value)">
+        <option value="1.5">1.5</option><option value="1.6">1.6</option>
+        <option value="1.65" selected>1.65</option><option value="1.8">1.8</option><option value="2.0">2.0</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">tema</div>
+    <div class="swatches">
+      <div class="swatch on"  style="background:#1e1e2e" onclick="setTheme('dark',this)"><span style="color:#44445e">dark</span></div>
+      <div class="swatch"     style="background:#0d0d0d" onclick="setTheme('black',this)"><span style="color:#2a2a2a">black</span></div>
+      <div class="swatch"     style="background:#181821" onclick="setTheme('charcoal',this)"><span style="color:#333345">char</span></div>
+      <div class="swatch"     style="background:#282a36" onclick="setTheme('dracula',this)"><span style="color:#6272a4">drac</span></div>
+      <div class="swatch"     style="background:#2e3440" onclick="setTheme('nord',this)"><span style="color:#4c566a">nord</span></div>
+      <div class="swatch"     style="background:#f0f0f6;border:1px solid #ddd" onclick="setTheme('light',this)"><span style="color:#aaa">light</span></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">layout</div>
+    <div class="field"><span>padding sfondo</span>
+      <div class="srow">
+        <input type="range" id="padR" min="0" max="80" value="0" step="4" oninput="setPad(this.value)">
+        <span class="sval" id="padV">0</span>
+      </div>
+    </div>
+    <div class="field"><span>larghezza</span>
+      <select onchange="setW(this.value)">
+        <option value="460px">stretta 460</option>
+        <option value="580px">media 580</option>
+        <option value="700px" selected>standard 700</option>
+        <option value="860px">larga 860</option>
+        <option value="100%">piena</option>
+      </select>
+    </div>
+    <div class="trow"><span>numeri di riga</span><div class="tog on" id="togLn" onclick="togLn()"></div></div>
+    <div class="trow"><span>titlebar</span><div class="tog on" id="togTb" onclick="togTb()"></div></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">export</div>
+    <div class="field"><span>risoluzione</span>
+      <select id="scl">
+        <option value="1">1× normale</option>
+        <option value="2" selected>2× retina</option>
+        <option value="3">3× alta qualità</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn" onclick="exportPNG()">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 2v8M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/>
+    </svg>
+    salva PNG
+  </button>
+
+</aside>
+
+<div class="stage">
+  <div id="export-zone" style="padding:0px;">
+    <div id="win" class="th-dark" style="width:700px">
+      <div class="wbar" id="wbar">
+        <div class="wd wd-r"></div><div class="wd wd-y"></div><div class="wd wd-g"></div>
+        <div class="wname" id="wname">sketch.js</div>
+        <div class="wspc"></div>
+      </div>
+      <div class="wbody">
+        <div class="lnums" id="lnums">1</div>
+        <textarea id="code" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
+          placeholder="incolla il tuo codice qui..."
+          oninput="sync()" onkeydown="htab(event)">function setup() {
+  createCanvas(400, 400);
+  background(0);
+  noLoop();
+}
+
+function draw() {
+  fill(255);
+  noStroke();
+  textFont('Arial');
+  textSize(32);
+  textAlign(CENTER, CENTER);
+  text('Hello, p5.js!', width / 2, height / 2);
+}</textarea>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const code = document.getElementById('code');
+const lnums = document.getElementById('lnums');
+
+function sync() {
+  const n = code.value.split('\n').length;
+  lnums.textContent = Array.from({length: n}, (_, i) => i + 1).join('\n');
+  code.style.height = 'auto';
+  code.style.height = code.scrollHeight + 'px';
+}
+
+function htab(e) {
+  if (e.key !== 'Tab') return;
+  e.preventDefault();
+  const s = code.selectionStart, en = code.selectionEnd;
+  code.value = code.value.slice(0, s) + '  ' + code.value.slice(en);
+  code.selectionStart = code.selectionEnd = s + 2;
+  sync();
+}
+
+function setFname(v) { document.getElementById('wname').textContent = v || 'untitled'; }
+
+function setFs(v) {
+  const px = v + 'px';
+  code.style.fontSize = px;
+  lnums.style.fontSize = px;
+  sync();
+}
+
+function setLh(v) {
+  code.style.lineHeight = v;
+  lnums.style.lineHeight = v;
+}
+
+function setTheme(name, el) {
+  const win = document.getElementById('win');
+  win.className = win.className.replace(/th-\w+/, '') + 'th-' + name;
+  document.querySelectorAll('.swatch').forEach(s => s.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function setPad(v) {
+  document.getElementById('padV').textContent = v;
+  document.getElementById('export-zone').style.padding = v + 'px';
+}
+
+function setW(v) { document.getElementById('win').style.width = v; }
+
+let lnOn = true;
+function togLn() {
+  lnOn = !lnOn;
+  document.getElementById('togLn').classList.toggle('on', lnOn);
+  lnums.style.display = lnOn ? '' : 'none';
+}
+
+let tbOn = true;
+function togTb() {
+  tbOn = !tbOn;
+  document.getElementById('togTb').classList.toggle('on', tbOn);
+  document.getElementById('wbar').style.display = tbOn ? '' : 'none';
+}
+
+function exportPNG() {
+  const exportZone = document.getElementById('export-zone');
+  const scale = parseInt(document.getElementById('scl').value);
+  const fname = (document.getElementById('fname').value || 'code').replace(/\..*$/, '');
+
+  const prevOverflow = code.style.overflow;
+  code.style.overflow = 'visible';
+  sync();
+
+  html2canvas(exportZone, {
+    scale,
+    useCORS: true,
+    backgroundColor: null,
+    logging: false,
+    onclone(doc) {
+      const c = doc.getElementById('code');
+      c.style.height = 'auto';
+      c.style.overflow = 'visible';
+    }
+  }).then(canvas => {
+    code.style.overflow = prevOverflow;
+    const a = document.createElement('a');
+    a.download = fname + '.png';
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+  });
+}
+
+sync();
+</script>
+</body>
+</html>
