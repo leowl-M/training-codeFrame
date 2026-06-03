@@ -97,42 +97,33 @@ function setBg(v) {
 }
 
 function setPad(v) {
-  document.getElementById('padV').textContent = v;
+  document.getElementById('padLabel').textContent = 'padding sfondo: ' + v;
   document.getElementById('export-zone').style.padding = v + 'px';
   saveState();
 }
 
 function setW(v) { document.getElementById('win').style.width = v; saveState(); }
 
-let lnOn = true;
 function togLn() {
-  lnOn = !lnOn;
-  document.getElementById('togLn').classList.toggle('on', lnOn);
-  lnums.style.display = lnOn ? '' : 'none';
+  const on = document.getElementById('togLn').checked;
+  lnums.style.display = on ? '' : 'none';
   saveState();
 }
 
-let tbOn = true;
 function togTb() {
-  tbOn = !tbOn;
-  document.getElementById('togTb').classList.toggle('on', tbOn);
-  document.getElementById('wbar').style.display = tbOn ? '' : 'none';
+  const on = document.getElementById('togTb').checked;
+  document.getElementById('wbar').style.display = on ? '' : 'none';
   saveState();
 }
 
-let wmOn = false;
-function togWm() {
-  wmOn = !wmOn;
-  document.getElementById('togWm').classList.toggle('on', wmOn);
-  applyWm();
-  saveState();
-}
+function togWm() { applyWm(); saveState(); }
 function setWm() { applyWm(); saveState(); }
 function applyWm() {
+  const on = document.getElementById('togWm').checked;
   const wm = document.getElementById('wm');
   const t = document.getElementById('wmText').value;
   wm.textContent = t;
-  wm.style.display = (wmOn && t) ? '' : 'none';
+  wm.style.display = (on && t) ? '' : 'none';
 }
 
 let _tt;
@@ -230,7 +221,9 @@ function saveState() {
     bg: curBg,
     pad: document.getElementById('padR').value,
     width: document.getElementById('win').style.width,
-    lnOn, tbOn, wmOn,
+    lnOn: document.getElementById('togLn').checked,
+    tbOn: document.getElementById('togTb').checked,
+    wmOn: document.getElementById('togWm').checked,
     wmText: document.getElementById('wmText').value,
     scl: document.getElementById('scl').value
   };
@@ -254,10 +247,11 @@ function restoreState() {
   if (s.bg != null) { document.getElementById('bg').value = s.bg; setBg(s.bg); }
   if (s.pad != null) { document.getElementById('padR').value = s.pad; setPad(s.pad); }
   if (s.width) { document.getElementById('win').style.width = s.width; setSelectByValue('w', s.width); }
-  if (typeof s.lnOn === 'boolean' && s.lnOn !== lnOn) togLn();
-  if (typeof s.tbOn === 'boolean' && s.tbOn !== tbOn) togTb();
+  if (typeof s.lnOn === 'boolean') { document.getElementById('togLn').checked = s.lnOn; togLn(); }
+  if (typeof s.tbOn === 'boolean') { document.getElementById('togTb').checked = s.tbOn; togTb(); }
   if (s.wmText != null) document.getElementById('wmText').value = s.wmText;
-  if (typeof s.wmOn === 'boolean' && s.wmOn !== wmOn) togWm(); else applyWm();
+  if (typeof s.wmOn === 'boolean') document.getElementById('togWm').checked = s.wmOn;
+  applyWm();
   if (s.scl) document.getElementById('scl').value = s.scl;
 
   _restoring = false;
@@ -270,3 +264,5 @@ function setSelectByValue(id, val) {
 
 restoreState();
 sync();
+
+if (window.lucide) lucide.createIcons();

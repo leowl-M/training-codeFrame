@@ -4,42 +4,50 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>codeframe</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest" defer></script>
 <link rel="stylesheet" href="style.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="script.js" defer></script>
 </head>
-<body>
+<body class="bg-neutral-950 text-neutral-300 font-sans flex flex-col md:flex-row h-screen w-full overflow-hidden">
 
-<div class="topbar">
-  <div class="logo"><div class="logo-dot"></div>codeframe</div>
-  <span class="topbar-hint">incolla · personalizza · esporta</span>
-</div>
+<aside class="w-full md:w-80 flex-shrink-0 p-6 flex flex-col overflow-y-auto border-r border-neutral-800 bg-neutral-900">
 
-<div class="main">
-<aside class="sb">
+  <div class="pb-6 border-b border-neutral-800 mb-6">
+    <h1 class="text-lg font-medium text-white tracking-tight">codeframe</h1>
+    <p class="text-[10px] text-neutral-500 mt-1 tracking-wide">incolla · personalizza · esporta</p>
+  </div>
 
-  <div class="sec">
-    <div class="sec-title">file</div>
-    <div class="field"><span>nome file</span>
-      <input type="text" id="fname" value="sketch.js" oninput="setFname(this.value)">
+  <!-- file -->
+  <div class="flex flex-col gap-4 mb-6 pb-6 border-b border-neutral-800">
+    <h2 class="text-xs font-medium text-neutral-400 flex items-center gap-2"><i data-lucide="file" class="w-3.5 h-3.5"></i> file</h2>
+    <div>
+      <label class="block text-[10px] text-neutral-500 mb-1">nome file</label>
+      <input type="text" id="fname" value="sketch.js" oninput="setFname(this.value)" class="w-full bg-neutral-800 border border-neutral-700 rounded p-2 text-xs text-neutral-200 outline-none focus:border-neutral-500">
     </div>
-    <div class="field"><span>font size</span>
-      <select id="fs" onchange="setFs(this.value)">
-        <option value="11">11px</option><option value="12">12px</option>
-        <option value="13" selected>13px</option><option value="14">14px</option>
-        <option value="15">15px</option><option value="16">16px</option><option value="18">18px</option>
-      </select>
+    <div class="flex gap-4">
+      <div class="flex-1">
+        <label class="block text-[10px] text-neutral-500 mb-1">font size</label>
+        <select id="fs" onchange="setFs(this.value)" class="w-full bg-neutral-800 border border-neutral-700 rounded p-2 text-xs text-neutral-200 outline-none cursor-pointer focus:border-neutral-500">
+          <option value="11">11px</option><option value="12">12px</option>
+          <option value="13" selected>13px</option><option value="14">14px</option>
+          <option value="15">15px</option><option value="16">16px</option><option value="18">18px</option>
+        </select>
+      </div>
+      <div class="flex-1">
+        <label class="block text-[10px] text-neutral-500 mb-1">line height</label>
+        <select id="lh" onchange="setLh(this.value)" class="w-full bg-neutral-800 border border-neutral-700 rounded p-2 text-xs text-neutral-200 outline-none cursor-pointer focus:border-neutral-500">
+          <option value="1.5">1.5</option><option value="1.6">1.6</option>
+          <option value="1.65" selected>1.65</option><option value="1.8">1.8</option><option value="2.0">2.0</option>
+        </select>
+      </div>
     </div>
-    <div class="field"><span>line height</span>
-      <select id="lh" onchange="setLh(this.value)">
-        <option value="1.5">1.5</option><option value="1.6">1.6</option>
-        <option value="1.65" selected>1.65</option><option value="1.8">1.8</option><option value="2.0">2.0</option>
-      </select>
-    </div>
-    <div class="field"><span>linguaggio</span>
-      <select id="lang" onchange="onLang()">
+    <div>
+      <label class="block text-[10px] text-neutral-500 mb-1">linguaggio</label>
+      <select id="lang" onchange="onLang()" class="w-full bg-neutral-800 border border-neutral-700 rounded p-2 text-xs text-neutral-200 outline-none cursor-pointer focus:border-neutral-500">
         <option value="">auto (da estensione)</option>
         <option value="javascript">JavaScript</option>
         <option value="typescript">TypeScript</option>
@@ -64,28 +72,29 @@
     </div>
   </div>
 
-  <div class="sec">
-    <div class="sec-title">tema</div>
-    <div class="swatches">
-      <div class="swatch on" data-theme="dark"     style="background:#1e1e2e" onclick="setTheme('dark',this)"><span style="color:#44445e">dark</span></div>
-      <div class="swatch"    data-theme="black"    style="background:#0d0d0d" onclick="setTheme('black',this)"><span style="color:#2a2a2a">black</span></div>
-      <div class="swatch"    data-theme="charcoal" style="background:#181821" onclick="setTheme('charcoal',this)"><span style="color:#333345">char</span></div>
-      <div class="swatch"    data-theme="dracula"  style="background:#282a36" onclick="setTheme('dracula',this)"><span style="color:#6272a4">drac</span></div>
-      <div class="swatch"    data-theme="nord"     style="background:#2e3440" onclick="setTheme('nord',this)"><span style="color:#4c566a">nord</span></div>
-      <div class="swatch sw-light" data-theme="light" style="background:#f0f0f6" onclick="setTheme('light',this)"><span style="color:#aaa">light</span></div>
+  <!-- tema -->
+  <div class="flex flex-col gap-4 mb-6 pb-6 border-b border-neutral-800">
+    <h2 class="text-xs font-medium text-neutral-400 flex items-center gap-2"><i data-lucide="palette" class="w-3.5 h-3.5"></i> tema</h2>
+    <div class="grid grid-cols-3 gap-2">
+      <button type="button" class="swatch on h-9 rounded flex items-end px-1.5 pb-1 text-[8.5px] cursor-pointer" data-theme="dark"     style="background:#1e1e2e;color:#44445e" onclick="setTheme('dark',this)">dark</button>
+      <button type="button" class="swatch h-9 rounded flex items-end px-1.5 pb-1 text-[8.5px] cursor-pointer"    data-theme="black"    style="background:#0d0d0d;color:#2a2a2a" onclick="setTheme('black',this)">black</button>
+      <button type="button" class="swatch h-9 rounded flex items-end px-1.5 pb-1 text-[8.5px] cursor-pointer"    data-theme="charcoal" style="background:#181821;color:#333345" onclick="setTheme('charcoal',this)">char</button>
+      <button type="button" class="swatch h-9 rounded flex items-end px-1.5 pb-1 text-[8.5px] cursor-pointer"    data-theme="dracula"  style="background:#282a36;color:#6272a4" onclick="setTheme('dracula',this)">drac</button>
+      <button type="button" class="swatch h-9 rounded flex items-end px-1.5 pb-1 text-[8.5px] cursor-pointer"    data-theme="nord"     style="background:#2e3440;color:#4c566a" onclick="setTheme('nord',this)">nord</button>
+      <button type="button" class="swatch h-9 rounded flex items-end px-1.5 pb-1 text-[8.5px] cursor-pointer"    data-theme="light"    style="background:#f0f0f6;color:#aaa" onclick="setTheme('light',this)">light</button>
     </div>
   </div>
 
-  <div class="sec">
-    <div class="sec-title">layout</div>
-    <div class="field"><span>padding sfondo</span>
-      <div class="srow">
-        <input type="range" id="padR" min="0" max="80" value="0" step="4" oninput="setPad(this.value)">
-        <span class="sval" id="padV">0</span>
-      </div>
+  <!-- layout -->
+  <div class="flex flex-col gap-4 mb-6 pb-6 border-b border-neutral-800">
+    <h2 class="text-xs font-medium text-neutral-400 flex items-center gap-2"><i data-lucide="layout" class="w-3.5 h-3.5"></i> layout</h2>
+    <div>
+      <label class="block text-[10px] text-neutral-500 mb-1" id="padLabel">padding sfondo: 0</label>
+      <input type="range" id="padR" min="0" max="80" value="0" step="4" oninput="setPad(this.value)" class="w-full">
     </div>
-    <div class="field"><span>larghezza</span>
-      <select id="w" onchange="setW(this.value)">
+    <div>
+      <label class="block text-[10px] text-neutral-500 mb-1">larghezza</label>
+      <select id="w" onchange="setW(this.value)" class="w-full bg-neutral-800 border border-neutral-700 rounded p-2 text-xs text-neutral-200 outline-none cursor-pointer focus:border-neutral-500">
         <option value="460px">stretta 460</option>
         <option value="580px">media 580</option>
         <option value="700px" selected>standard 700</option>
@@ -93,14 +102,22 @@
         <option value="100%">piena</option>
       </select>
     </div>
-    <div class="trow"><span>numeri di riga</span><div class="tog on" id="togLn" onclick="togLn()"></div></div>
-    <div class="trow"><span>titlebar</span><div class="tog on" id="togTb" onclick="togTb()"></div></div>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" id="togLn" checked onchange="togLn()" class="w-3 h-3 accent-neutral-200 rounded cursor-pointer">
+      <span class="text-[11px] text-neutral-400">numeri di riga</span>
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" id="togTb" checked onchange="togTb()" class="w-3 h-3 accent-neutral-200 rounded cursor-pointer">
+      <span class="text-[11px] text-neutral-400">titlebar</span>
+    </label>
   </div>
 
-  <div class="sec">
-    <div class="sec-title">sfondo</div>
-    <div class="field"><span>tipo sfondo</span>
-      <select id="bg" onchange="setBg(this.value)">
+  <!-- sfondo -->
+  <div class="flex flex-col gap-4 mb-6 pb-6 border-b border-neutral-800">
+    <h2 class="text-xs font-medium text-neutral-400 flex items-center gap-2"><i data-lucide="image" class="w-3.5 h-3.5"></i> sfondo</h2>
+    <div>
+      <label class="block text-[10px] text-neutral-500 mb-1">tipo sfondo</label>
+      <select id="bg" onchange="setBg(this.value)" class="w-full bg-neutral-800 border border-neutral-700 rounded p-2 text-xs text-neutral-200 outline-none cursor-pointer focus:border-neutral-500">
         <option value="">griglia punti</option>
         <option value="bg-solid">tinta piena</option>
         <option value="bg-grad-violet">gradiente viola</option>
@@ -108,21 +125,28 @@
         <option value="bg-none">nessuno</option>
       </select>
     </div>
-    <div class="hint-note">visibile solo con padding &gt; 0</div>
+    <p class="text-[10px] text-neutral-500">visibile solo con padding &gt; 0</p>
   </div>
 
-  <div class="sec">
-    <div class="sec-title">watermark</div>
-    <div class="trow"><span>mostra</span><div class="tog" id="togWm" onclick="togWm()"></div></div>
-    <div class="field"><span>testo</span>
-      <input type="text" id="wmText" value="@handle" oninput="setWm()">
+  <!-- watermark -->
+  <div class="flex flex-col gap-4 mb-6 pb-6 border-b border-neutral-800">
+    <h2 class="text-xs font-medium text-neutral-400 flex items-center gap-2"><i data-lucide="type" class="w-3.5 h-3.5"></i> watermark</h2>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" id="togWm" onchange="togWm()" class="w-3 h-3 accent-neutral-200 rounded cursor-pointer">
+      <span class="text-[11px] text-neutral-400">mostra</span>
+    </label>
+    <div>
+      <label class="block text-[10px] text-neutral-500 mb-1">testo</label>
+      <input type="text" id="wmText" value="@handle" oninput="setWm()" class="w-full bg-neutral-800 border border-neutral-700 rounded p-2 text-xs text-neutral-200 outline-none focus:border-neutral-500">
     </div>
   </div>
 
-  <div class="sec">
-    <div class="sec-title">export</div>
-    <div class="field"><span>risoluzione</span>
-      <select id="scl" onchange="saveState()">
+  <!-- export -->
+  <div class="flex flex-col gap-4 mb-6 pb-6 border-b border-neutral-800">
+    <h2 class="text-xs font-medium text-neutral-400 flex items-center gap-2"><i data-lucide="download" class="w-3.5 h-3.5"></i> export</h2>
+    <div>
+      <label class="block text-[10px] text-neutral-500 mb-1">risoluzione</label>
+      <select id="scl" onchange="saveState()" class="w-full bg-neutral-800 border border-neutral-700 rounded p-2 text-xs text-neutral-200 outline-none cursor-pointer focus:border-neutral-500">
         <option value="1">1× normale</option>
         <option value="2" selected>2× retina</option>
         <option value="3">3× alta qualità</option>
@@ -130,22 +154,18 @@
     </div>
   </div>
 
-  <button class="btn" onclick="exportPNG()">
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M8 2v8M5 7l3 3 3-3M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/>
-    </svg>
-    salva PNG
-  </button>
-  <button class="btn btn-2" onclick="copyPNG()">
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3a1 1 0 00-1-1H3a1 1 0 00-1 1v7a1 1 0 001 1h2"/>
-    </svg>
-    copia negli appunti
-  </button>
+  <div class="flex flex-col gap-2 mt-auto">
+    <button onclick="exportPNG()" class="bg-white text-black hover:bg-neutral-200 py-2 rounded text-xs font-medium transition flex items-center justify-center gap-2">
+      <i data-lucide="download" class="w-3.5 h-3.5"></i> salva PNG
+    </button>
+    <button onclick="copyPNG()" class="w-full bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 text-white py-1.5 rounded text-[11px] transition flex items-center justify-center gap-2">
+      <i data-lucide="clipboard" class="w-3.5 h-3.5"></i> copia negli appunti
+    </button>
+  </div>
 
 </aside>
 
-<div class="stage">
+<main class="flex-1 relative flex items-center justify-center bg-neutral-950 overflow-auto p-8">
   <div id="export-zone">
     <div id="win" class="th-dark" style="width:700px">
       <div class="wbar" id="wbar">
@@ -178,8 +198,7 @@ function draw() {
     </div>
     <div id="wm" class="wm" style="display:none"></div>
   </div>
-</div>
-</div>
+</main>
 
 <div class="toast" id="toast"></div>
 
